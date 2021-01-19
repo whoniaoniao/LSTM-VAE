@@ -2,15 +2,17 @@ from vrae.vrae import VRAE
 from vrae.utils import *
 import numpy as np
 import torch
-
 import plotly
 from torch.utils.data import DataLoader, TensorDataset
 from pathlib import Path
 import yaml
 from attrdict import AttrDict
+import matplotlib.pyplot as plt
+import numpy as np
+torch.manual_seed(0)
 # plotly.offline.init_notebook_mode()
 # Input parameters
-index = 4
+index = 8
 dload = './model_dir/' + str(index)  # download directory
 image_save = "./images/"+ str(index)
 dload_path = Path(dload)
@@ -63,7 +65,7 @@ vrae = VRAE(sequence_length=sequence_length,
             hidden_size=hidden_size,
             hidden_layer_depth=hidden_layer_depth,
             latent_length=latent_length,
-            batch_size=batch_size, \
+            batch_size=batch_size,
             learning_rate=learning_rate,
             n_epochs=n_epochs,
             dropout_rate=dropout_rate,
@@ -79,11 +81,34 @@ vrae = VRAE(sequence_length=sequence_length,
 # Fit the model onto dataset
 vrae.fit(train_dataset, save=True)
 
-# Transform the input timeseries to encoded latent vectors
-z_run = vrae.transform(test_dataset, save=True)
-
 # Save the model to be fetched later
 vrae.save('vrae.pth')
 print("Save Model successfully")
+
+# To load a presaved model, execute:
+#Model_Num = index
+#vrae.load('/Users/haiouwan/src/VAE/model_dir/{}/vrae.pth'.format(str(Model_Num)))
+
+# Transform the input timeseries to encoded latent vectors
+z_run = vrae.transform(test_dataset, save=True)
 # Visualize using PCA and tSNE
 plot_clustering(z_run, y_val, engine='matplotlib', download=True, folder_name=image_save)
+
+# Visulalizing the input time series vs the Output time series
+# X_decoded = vrae.reconstruct(test_dataset)
+# for i in range(20):
+#     # Plotting test_dataset
+#     test_data_sample = test_dataset.tensors[0].numpy()[i,:]
+#     test_data_sample_time_steps = np.arange(0, test_data_sample.shape[0])
+#     plt.plot(test_data_sample_time_steps, test_data_sample)
+#     X_decoded_sample = np.squeeze(X_decoded)[:,i]
+#     X_decoded_sample_time_steps = np.arange(0, X_decoded_sample.shape[0])
+#     plt.plot(X_decoded_sample_time_steps, X_decoded_sample)
+#     plt.savefig("/Users/haiouwan/src/VAE/model_dir/{}/plots/{}_compare.png".format(str(Model_Num), str(i)))
+#     plt.show()
+#     mean_error = np.mean(np.abs(X_decoded_sample - np.squeeze(test_data_sample)))
+#     print(mean_error)
+# print("After")
+
+
+

@@ -83,13 +83,13 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
         for name, z_run_sep in latent_dataset.items():
 
             # Kmean
-            # kmeans_model = KMeans(n_clusters=n_clusters_, random_state=1)
-            # y_pred = kmeans_model.fit_predict(z_run_sep) #Labels of each point
+            kmeans_model = KMeans(n_clusters=n_clusters_, random_state=1)
+            y_pred = kmeans_model.fit_predict(z_run_sep) #Labels of each point
 
             # SpectralClustering
-            sc_model = SpectralClustering(n_clusters=n_clusters_)
-            y_pred = sc_model.fit_predict(z_run_sep)
-
+            #sc_model = SpectralClustering(n_clusters=n_clusters_)
+            #y_pred = sc_model.fit_predict(z_run_sep)
+            # name
             # # Mean Shift
             #meanshift_model = MeanShift(bandwidth=n_clusters_)
             #y_pred = meanshift_model.fit_predict(z_run_sep)
@@ -97,11 +97,13 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
             metrics.silhouette_score(z_run_sep, labels, metric='euclidean')
             labels_for_metrics = np.squeeze(labels)
             accuracy = metrics.adjusted_mutual_info_score(labels_for_metrics, y_pred) #完全一样则为1，也可能为0
+            accuracy = round(accuracy, 2)
             print(
                 "***************the accuracy of the clustering {} and dim_red {} is: {}************************".format(
-                    "SpectralClustering", name, accuracy))
+                    "Kmeans", name, str(accuracy)))
+
             plt.scatter(z_run_sep[:, 0], z_run_sep[:, 1], c=y_pred)
-            title = "predict_clustering on " + name
+            title = "predict_clustering on " + " Acc: " + str(accuracy) +".png"
             plt.title(title)
             if download:
                 if os.path.exists(folder_name):
@@ -112,7 +114,7 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
             else:
                 plt.show()
             plt.scatter(z_run_sep[:, 0], z_run_sep[:, 1], c=colors, marker='*', linewidths=0)
-            title = "Groundtruth on " + name
+            title = "Groundtruth on " + name +".png"
             plt.title(title)
             if download:
                 if os.path.exists(folder_name):

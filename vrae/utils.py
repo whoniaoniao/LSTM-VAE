@@ -83,12 +83,12 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
         for name, z_run_sep in latent_dataset.items():
 
             # Kmean
-            kmeans_model = KMeans(n_clusters=n_clusters_, random_state=1)
-            y_pred = kmeans_model.fit_predict(z_run_sep) #Labels of each point
+            # kmeans_model = KMeans(n_clusters=n_clusters_, random_state=1)
+            # y_pred = kmeans_model.fit_predict(z_run_sep) #Labels of each point
 
             # SpectralClustering
-            #sc_model = SpectralClustering(n_clusters=n_clusters_)
-            #y_pred = sc_model.fit_predict(z_run_sep)
+            sc_model = SpectralClustering(n_clusters=n_clusters_)
+            y_pred = sc_model.fit_predict(z_run_sep)
             # name
             # # Mean Shift
             #meanshift_model = MeanShift(bandwidth=n_clusters_)

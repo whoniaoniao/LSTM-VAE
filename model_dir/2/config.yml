@@ -3,12 +3,12 @@ block: LSTM
 clip: true
 cuda: true
 dropout_rate: 0.2
-hidden_layer_depth: 1
+hidden_layer_depth: 2
 hidden_size: 90
 latent_length: 20
 learning_rate: 0.0005
 loss: MSELoss
 max_grad_norm: 5
-n_epochs: 1
+n_epochs: 200
 optimizer: Adam
 print_every: 30

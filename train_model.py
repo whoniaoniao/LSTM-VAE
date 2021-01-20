@@ -9,26 +9,30 @@ import yaml
 from attrdict import AttrDict
 import matplotlib.pyplot as plt
 import numpy as np
+
 torch.manual_seed(0)
 # plotly.offline.init_notebook_mode()
 # Input parameters
-index = 8
+index = 10
 dload = './model_dir/' + str(index)  # download directory
-image_save = "./images/"+ str(index)
+image_save = "./images/" + str(index)
 dload_path = Path(dload)
+plots = Path(dload+"/plots")
 if not Path.exists(dload_path):
     Path.mkdir(dload_path)
+if not Path.exists(plots):
+    Path.mkdir(plots)
 
 # Hyper parameters
 cwd = Path.cwd()
-with open(str(cwd/"config.yml")) as handle:
+with open(str(cwd / "config.yml")) as handle:
     config = yaml.load(handle, Loader=yaml.FullLoader)
     config_dict = config.copy()
     config = AttrDict(config)
 
-with open(str(dload +"/"+"config.yml"), "w") as handle:
+with open(str(dload + "/" + "config.yml"), "w") as handle:
     yaml.dump(config_dict, handle)
-    
+
 hidden_size = config.hidden_size
 hidden_layer_depth = config.hidden_layer_depth
 latent_length = config.latent_length
@@ -79,36 +83,35 @@ vrae = VRAE(sequence_length=sequence_length,
             dload=dload)
 
 # Fit the model onto dataset
-vrae.fit(train_dataset, save=True)
+# vrae.fit(train_dataset, save=True)
 
 # Save the model to be fetched later
-vrae.save('vrae.pth')
-print("Save Model successfully")
-
+# vrae.save('vrae.pth')
+# print("Save Model successfully")
 # To load a presaved model, execute:
-#Model_Num = index
-#vrae.load('/Users/haiouwan/src/VAE/model_dir/{}/vrae.pth'.format(str(Model_Num)))
+Model_Num = index
+vrae.load('./model_dir/{}/vrae.pth'.format(str(Model_Num)))
 
 # Transform the input timeseries to encoded latent vectors
-z_run = vrae.transform(test_dataset, save=True)
+# z_run = vrae.transform(test_dataset, save=True)
 # Visualize using PCA and tSNE
-plot_clustering(z_run, y_val, engine='matplotlib', download=True, folder_name=image_save)
+# plot_clustering(z_run, y_val, engine='matplotlib', download=True, folder_name=image_save)
 
 # Visulalizing the input time series vs the Output time series
-# X_decoded = vrae.reconstruct(test_dataset)
-# for i in range(20):
-#     # Plotting test_dataset
-#     test_data_sample = test_dataset.tensors[0].numpy()[i,:]
-#     test_data_sample_time_steps = np.arange(0, test_data_sample.shape[0])
-#     plt.plot(test_data_sample_time_steps, test_data_sample)
-#     X_decoded_sample = np.squeeze(X_decoded)[:,i]
-#     X_decoded_sample_time_steps = np.arange(0, X_decoded_sample.shape[0])
-#     plt.plot(X_decoded_sample_time_steps, X_decoded_sample)
-#     plt.savefig("/Users/haiouwan/src/VAE/model_dir/{}/plots/{}_compare.png".format(str(Model_Num), str(i)))
-#     plt.show()
-#     mean_error = np.mean(np.abs(X_decoded_sample - np.squeeze(test_data_sample)))
-#     print(mean_error)
-# print("After")
+X_decoded = vrae.reconstruct(test_dataset)
+for i in range(20):
+    # Plotting test_dataset
+    test_data_sample = test_dataset.tensors[0].numpy()[i,:]
+    test_data_sample_time_steps = np.arange(0, test_data_sample.shape[0])
+    plt.plot(test_data_sample_time_steps, test_data_sample)
+    X_decoded_sample = np.squeeze(X_decoded)[:,i]
+    X_decoded_sample_time_steps = np.arange(0, X_decoded_sample.shape[0])
+    plt.plot(X_decoded_sample_time_steps, X_decoded_sample)
+    plt.savefig("./model_dir/{}/plots/{}_compare.png".format(str(Model_Num), str(i)))
+    plt.show()
+    mean_error = np.mean(np.abs(X_decoded_sample - np.squeeze(test_data_sample)))
+    print(mean_error)
+print("After")
 
 
 

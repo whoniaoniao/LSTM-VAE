@@ -6,6 +6,7 @@ from .base import BaseEstimator
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import os
+from tqdm import tqdm
 
 
 class Encoder(nn.Module):
@@ -340,7 +341,7 @@ class VRAE(BaseEstimator, nn.Module):
                                   shuffle = True,
                                   drop_last=True)
 
-        for i in range(self.n_epochs):
+        for i in tqdm(range(self.n_epochs)):
             print('Epoch: %s' % i)
 
             self._train(train_loader)

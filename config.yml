@@ -1,6 +1,6 @@
 # Hyper parameters
-hidden_size : 45 #lower,90 is to high
-hidden_layer_depth : 1
+hidden_size : 140
+hidden_layer_depth : 3
 latent_length : 20
 batch_size : 32
 learning_rate : 0.0005

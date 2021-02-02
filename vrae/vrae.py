@@ -276,7 +276,6 @@ class VRAE(BaseEstimator, nn.Module):
         """
         Given input tensor, forward propagate, compute the loss, and backward propagate.
         Represents the lifecycle of a single iteration
-
         :param X: Input tensor
         :return: total loss, reconstruction loss, kl-divergence loss and original input
         """
@@ -417,6 +416,43 @@ class VRAE(BaseEstimator, nn.Module):
 
         raise RuntimeError('Model needs to be fit')
 
+    def test_loss_compute(self, dataset, save=False):
+        """
+        Given input dataset, creates dataloader, runs dataloader on `_batch_reconstruct`
+        Prerequisite is that model has to be fit
+
+        :param dataset: input dataset who's output vectors are to be obtained
+        :param bool save: If true, dumps the output vector dataframe as a pickle file
+        :return:
+        """
+
+        self.eval()
+
+        test_loader = DataLoader(dataset=dataset,
+                                 batch_size=self.batch_size,
+                                 shuffle=False,
+                                 drop_last=True)  # Don't shuffle for test_loader
+
+        if self.is_fitted:
+            with torch.no_grad():
+                epoch_loss = 0
+                for t, x in enumerate(test_loader):
+                    x = x[0]
+                    x = x.permute(1, 0, 2)
+
+                    loss, recon_loss, kl_loss, _ = self.compute_loss(x)
+                    # accumulator
+                    epoch_loss += loss.item()
+                average_loss = epoch_loss / t
+                if save:
+                    if os.path.exists(self.dload):
+                        pass
+                    else:
+                        os.mkdir(self.dload)
+                return average_loss
+
+        raise RuntimeError('Model needs to be fit')
+
 
     def transform(self, dataset, save = False):
         """
@@ -478,7 +514,7 @@ class VRAE(BaseEstimator, nn.Module):
             pass
         else:
             os.mkdir(self.dload)
-        torch.save(self.state_dict(), PATH)
+        torch.save(self.state_dict(), PATH, _use_new_zipfile_serialization=False)
 
     def load(self, PATH):
         """

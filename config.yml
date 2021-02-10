@@ -1,10 +1,10 @@
 # Hyper parameters
-hidden_size : 30 # [20, 90]
-hidden_layer_depth : 1 # [1, 4]
-latent_length : 6 # [10, 20]
-batch_size : 10 #[32, 64]
-learning_rate : 0.0003 # [0.0001, 0.0005]
-n_epochs : 800 #[200, 300]
+hidden_size : 40 # [20, 90]
+hidden_layer_depth : 2 # [1, 4]
+latent_length : 10 # [5,20]
+batch_size : 1 #[1,10]
+learning_rate : 0.0005 # [0.0001, 0.0005]
+n_epochs : 1400 #[200, 1500]
 dropout_rate : 0.2  # [0, 0.2]
 optimizer : 'Adam'  # options: ADAM, SGD
 cuda : True  # options: True, False

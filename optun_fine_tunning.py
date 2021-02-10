@@ -26,10 +26,10 @@ from torch.utils.data import DataLoader, TensorDataset
 def define_vrae_model(trial, sequence_length, number_of_features):
     hidden_layer_depth = trial.suggest_int("n_hidden_layers", 1, 2)
     hidden_size = trial.suggest_int("hidden_size", 30, 60, step=10)
-    latent_length = trial.suggest_int("latent_length", 5, 20, step=5)
-    batch_size = trial.suggest_int("batch_size", 32, 128, step=8)
+    latent_length = trial.suggest_int("latent_length",2, 10, step=2)
+    batch_size = trial.suggest_int("batch_size", 1, 10, step=1)
     learning_rate = trial.suggest_float("learning_rate", 0.0001, 0.0005, step=0.0002)
-    n_epochs = trial.suggest_int("n_epochs", 200, 1500, step=100)
+    n_epochs = trial.suggest_int("n_epochs", 200, 1600, step=200)
     dropout_rate = trial.suggest_float("learning_rate", 0.1, 0.2, step=0.1)
     optimizer = trial.suggest_categorical("optimizer", ["Adam", "SGD"])
     loss = trial.suggest_categorical("loss", ["SmoothL1Loss", "MSELoss"])
@@ -46,7 +46,7 @@ def define_vrae_model(trial, sequence_length, number_of_features):
     # optimizer = "Adam"
     # loss = "SmoothL1Loss"
     block = "LSTM"
-    dload = './model_dir/'
+    dload = './ECG200_model_dir/'
 
     print_every = 30
     cuda = True
@@ -76,7 +76,10 @@ def objective(trial):
     # Generate the model.
     # Load data and preprocess
     DEVICE = torch.device("cuda")
-    X_train, X_val, y_train, y_val = open_data('data', ratio_train=0.9)
+    pwd = os.getcwd()
+    # X_train, X_val, y_train, y_val = open_newdata_ED("ElectricDevices", ratio_train=0.9)
+    X_train, X_val, y_train, y_val = open_newdata("ECG200", ratio_train=0.9)
+
 
     train_dataset = TensorDataset(torch.from_numpy(X_train))
     test_dataset = TensorDataset(torch.from_numpy(X_val))
@@ -92,7 +95,7 @@ def objective(trial):
 
 if __name__ == "__main__":
     study = optuna.create_study(direction="minimize")  # Minimize the loss
-    study.optimize(objective, n_trials=100, timeout=600)
+    study.optimize(objective, n_trials=10000, timeout=None)
 
     pruned_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED]
     complete_trials = [t for t in study.trials if t.state == optuna.trial.TrialState.COMPLETE]

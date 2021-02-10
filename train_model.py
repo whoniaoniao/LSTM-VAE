@@ -51,8 +51,8 @@ def main(config):
                 block=block,
                 dload=dload)
 
-
     return vrae
+
 
 if __name__ == '__main__':
     # plotly.offline.init_notebook_mode()
@@ -68,7 +68,6 @@ if __name__ == '__main__':
         Path.mkdir(plots)
 
     torch.manual_seed(0)
-
 
     # Hyper parameters
     cwd = Path.cwd()
@@ -91,39 +90,46 @@ if __name__ == '__main__':
     y_val -= base
     train_dataset = TensorDataset(torch.from_numpy(X_train))
     test_dataset = TensorDataset(torch.from_numpy(X_val))
-    #Save the model to be fetched later
-    #vrae.save('vrae.pth')
-    #print("Save Model successfully")
+    # Save the model to be fetched later
+    # vrae.save('vrae.pth')
+    # print("Save Model successfully")
     # To load a presaved model, execute:
-    # Model_Num = index
+    Model_Num = index
     # Fit the model onto dataset
     config.dload = dload
     vrae = main(config)
-    vrae.fit(train_dataset, save=True)
-    vrae.save('vrae.pth')
-    # vrae.load('./model_dir/{}/vrae.pth'.format(str(Model_Num)))
+    # vrae.fit(train_dataset, save=True)
+    # vrae.save('vrae.pth')
+    vrae.load('./model_dir/{}/vrae.pth'.format(str(Model_Num)))
     # # loss = vrae.compute_loss(test_dataset)
     # # # Transform the input timeseries to encoded latent vectors
-    # z_run = vrae.transform(test_dataset)
+    z_run = vrae.transform(test_dataset)
     # # # Visualize using PCA and tSNE
-    # plot_clustering(z_run, y_val, engine='matplotlib', download=True, folder_name=image_save)
-    # #Transform the input dataset to encoded latent vectors
-    # z_run_train = vrae.transform(train_dataset, save=False)
-    # labels = y_train[:z_run_train.shape[0]]
-    # clf = svm.SVC()
-    # clf.fit(z_run_train, labels)
-    # y_pred = clf.predict(z_run)
-    # labels_for_z_run = y_train[:z_run.shape[0]]
-    # print("accuracy of the svm", accuracy_score(labels_for_z_run,y_pred))
-
-    # Visulalizing the input time series vs the Output time series
+    plot_clustering(z_run, y_val, engine='matplotlib', download=True, folder_name=image_save)
+    # ##Transform the input dataset to encoded latent vectors
+    z_run_train = vrae.transform(train_dataset, save=False)
+    labels = y_train[:z_run_train.shape[0]]
+    clf = svm.SVC()
+    clf.fit(z_run_train, labels)
+    y_pred = clf.predict(z_run)
+    labels_for_z_run = y_train[:z_run.shape[0]]
+    f1_final_score = f1_score(y_true=labels_for_z_run, y_pred=y_pred, average='weighted')
+    recall_final_score = recall_score(y_true=labels_for_z_run, y_pred=y_pred, average='weighted')
+    accuracy_final_score = accuracy_score(y_true=labels_for_z_run, y_pred=y_pred)
+    precision_final_score = precision_score(y_true=labels_for_z_run, y_pred=y_pred, average='weighted')
+    print("accuracy of the svm", accuracy_score(labels_for_z_run, y_pred))
+    print("f1_final_score ", f1_final_score)
+    print("recall_final_score", recall_final_score)
+    print("accuracy_final_score", accuracy_final_score)
+    print("precision_final_score", precision_final_score)
+    # # Visulalizing the input time series vs the Output time series
     # X_decoded = vrae.reconstruct(test_dataset)
     # for i in range(100):
     #     # Plotting test_dataset
-    #     test_data_sample = test_dataset.tensors[0].numpy()[i,:]
+    #     test_data_sample = test_dataset.tensors[0].numpy()[i, :]
     #     test_data_sample_time_steps = np.arange(0, test_data_sample.shape[0])
     #     plt.plot(test_data_sample_time_steps, test_data_sample)
-    #     X_decoded_sample = np.squeeze(X_decoded)[:,i]
+    #     X_decoded_sample = np.squeeze(X_decoded)[:, i]
     #     X_decoded_sample_time_steps = np.arange(0, X_decoded_sample.shape[0])
     #     plt.plot(X_decoded_sample_time_steps, X_decoded_sample)
     #     plt.savefig("./model_dir/{}/plots/{}_compare.png".format(str(Model_Num), str(i)))
@@ -131,6 +137,3 @@ if __name__ == '__main__':
     #     mean_error = np.mean(np.abs(X_decoded_sample - np.squeeze(test_data_sample)))
     #     print(mean_error)
     # print("After")
-
-
-

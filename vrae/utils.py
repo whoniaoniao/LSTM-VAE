@@ -12,6 +12,7 @@ from sklearn.cluster import KMeans, SpectralClustering, MeanShift, DBSCAN
 from sklearn import metrics
 from sklearn import svm
 from sklearn import mixture
+from sklearn.metrics import f1_score, recall_score, accuracy_score, precision_score
 
 
 # def svm_latent_space(data, label):
@@ -98,8 +99,8 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
         # y_pred = meanshift_model.fit_predict(z_run)
 
         # GMM
-        # GMM_model = mixture.GaussianMixture(n_components=5, covariance_type="full")
-        # y_pred = GMM_model.fit_predict(z_run)
+        GMM_model = mixture.GaussianMixture(n_components=5, covariance_type="full")
+        y_pred = GMM_model.fit_predict(z_run)
 
         # DBSCAN
         # DBSCAN_model = DBSCAN(eps = 0.1)
@@ -108,14 +109,6 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
         # # OPTICS
         # OPTICS_model = OPTICS(eps=0.8, min_samples=10)
         # y_pred = OPTICS_model.fit_predict(z_run)
-
-
-
-
-
-
-
-
 
         # cls = svm_latent_space(z_run, labels)
         # cls.predict()
@@ -127,45 +120,53 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
             # kmeans_model = KMeans(n_clusters=n_clusters_, random_state=1)
             # y_pred = kmeans_model.fit_predict(z_run_sep) #Labels of each point
 
-
             # name
             # # Mean Shift
-            #meanshift_model = MeanShift(bandwidth=n_clusters_)
-            #y_pred = meanshift_model.fit_predict(z_run_sep)
+            # meanshift_model = MeanShift(bandwidth=n_clusters_)
+            # y_pred = meanshift_model.fit_predict(z_run_sep)
             # SVM
 
             metrics.silhouette_score(z_run_sep, labels, metric='euclidean')
             labels_for_metrics = np.squeeze(labels)
-            accuracy = metrics.adjusted_mutual_info_score(labels_for_metrics, y_pred) #完全一样则为1，也可能为0
+            accuracy = metrics.adjusted_mutual_info_score(labels_for_metrics, y_pred)  # 完全一样则为1，也可能为0
+            f1_final_score = f1_score(y_true=labels, y_pred=y_pred, average='weighted')
+            recall_final_score = recall_score(y_true=labels, y_pred=y_pred, average='weighted')
+            accuracy_final_score = accuracy_score(y_true=labels, y_pred=y_pred)
+            precision_final_score = precision_score(y_true=labels, y_pred=y_pred, average='weighted')
+
             accuracy = round(accuracy, 2)
+            f1_final_score = round(f1_final_score, 2)
+            accuracy_final_score = round(accuracy_final_score, 2)
+            precision_final_score = round(precision_final_score, 2)
+            recall_final_score = round(recall_final_score, 2)
             print(
                 "***************the accuracy of the clustering {} and dim_red {} is: {}************************".format(
                     "Kmeans", name, str(accuracy)))
 
             plt.scatter(z_run_sep[:, 0], z_run_sep[:, 1], c=y_pred)
-            title = "predict_clustering_{} on {} ".format(clustering_name, name) + " Acc: " + str(accuracy) +".png"
+            title = "predict_clustering_{} on {} ".format(clustering_name, name) + " Acc: " + str(
+                accuracy) + " f1_score: {}, recall_score: {}, accuracy_score: {}, precision_score: {}.png".format(
+                f1_final_score, recall_final_score, accuracy_final_score, precision_final_score)
             plt.title(title)
             if download:
                 if os.path.exists(folder_name):
                     pass
                 else:
                     os.mkdir(folder_name)
-                plt.savefig(folder_name+"/"+title)
+                plt.savefig(folder_name + "/" + title)
             else:
                 plt.show()
             plt.scatter(z_run_sep[:, 0], z_run_sep[:, 1], c=colors, marker='*', linewidths=0)
-            title = "Groundtruth on " + name +".png"
+            title = "Groundtruth on " + name + ".png"
             plt.title(title)
             if download:
                 if os.path.exists(folder_name):
                     pass
                 else:
                     os.mkdir(folder_name)
-                plt.savefig(folder_name+"/"+title)
+                plt.savefig(folder_name + "/" + title)
             else:
                 plt.show()
-
-
 
         # if download:
         #     if os.path.exists(folder_name):
@@ -212,13 +213,12 @@ def open_data(direc, ratio_train=0.8, dataset="ECG5000"):
     ind = np.random.permutation(N)
     return data[ind[:ind_cut], 1:, :], data[ind[ind_cut:], 1:, :], data[ind[:ind_cut], 0, :], data[ind[ind_cut:], 0, :]
 
-
 def open_newdata(direc, ratio_train=0.8, dataset="ECG200"):
     """Input:
     direc: location of the UCR archive
     ratio_train: ratio to split training and testset
     dataset: name of the dataset in the UCR archive"""
-    datadir = direc + '/' + dataset + '/' + dataset
+    datadir = direc + '/' + '/' + dataset
     data_train = np.loadtxt(datadir + '_TRAIN.csv', delimiter=',')
     data_test_val = np.loadtxt(datadir + '_TEST.csv', delimiter=',')[:-1]
     data = np.concatenate((data_train, data_test_val), axis=0)
@@ -235,7 +235,7 @@ def open_newdata_ED(direc, ratio_train=0.8, dataset="ElectricDevices"):
     direc: location of the UCR archive
     ratio_train: ratio to split training and testset
     dataset: name of the dataset in the UCR archive"""
-    datadir = direc + '/' + dataset + '/' + dataset
+    datadir = direc + '/' + dataset
     data_train = np.loadtxt(datadir + '_TRAIN.csv', delimiter=',')
     data_test_val = np.loadtxt(datadir + '_TEST.csv', delimiter=',')[:-1]
     data = np.concatenate((data_train, data_test_val), axis=0)

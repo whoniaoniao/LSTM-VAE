@@ -6,9 +6,9 @@ dropout_rate: 0.2
 hidden_layer_depth: 1
 hidden_size: 30
 latent_length: 6
-learning_rate: 0.0003
+learning_rate: 0.0005
 loss: SmoothL1Loss
 max_grad_norm: 5
-n_epochs: 800
-optimizer: Adam
+n_epochs: 1200
+optimizer: SGD
 print_every: 60

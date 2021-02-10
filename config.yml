@@ -1,16 +1,16 @@
 # Hyper parameters
-hidden_size : 140
-hidden_layer_depth : 3
-latent_length : 20
-batch_size : 32
-learning_rate : 0.0005
-n_epochs : 300
-dropout_rate : 0.2
+hidden_size : 30 # [20, 90]
+hidden_layer_depth : 1 # [1, 4]
+latent_length : 6 # [10, 20]
+batch_size : 10 #[32, 64]
+learning_rate : 0.0003 # [0.0001, 0.0005]
+n_epochs : 800 #[200, 300]
+dropout_rate : 0.2  # [0, 0.2]
 optimizer : 'Adam'  # options: ADAM, SGD
 cuda : True  # options: True, False
-print_every : 30
+print_every : 60
 clip : True  # options: True, False
 max_grad_norm : 5
-loss : 'MSELoss'  # options: SmoothL1Loss, MSELoss
+loss : 'SmoothL1Loss'  # options: SmoothL1Loss, MSELoss
 block : 'LSTM'  # options: LSTM, GRU
 # Mutual information based score

@@ -8,9 +8,16 @@ import matplotlib.pyplot as plt
 from plotly.graph_objs import *
 import plotly
 import numpy as np
-from sklearn.cluster import KMeans, SpectralClustering, MeanShift
+from sklearn.cluster import KMeans, SpectralClustering, MeanShift, DBSCAN
 from sklearn import metrics
+from sklearn import svm
+from sklearn import mixture
 
+
+# def svm_latent_space(data, label):
+#     clf = svm.SVC()
+#     clf.fit(data, label)
+#     return clf
 
 def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name='clustering'):
     """
@@ -77,7 +84,41 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
         colors = [hex_colors[int(i)] for i in labels]
         z_run_pca = TruncatedSVD(n_components=3).fit_transform(z_run)
         z_run_tsne = TSNE(perplexity=80, min_grad_norm=1E-12, n_iter=3000).fit_transform(z_run)
+        # SpectralClustering
+        clustering_name = "GMM"
+        # sc_model = SpectralClustering(n_clusters=n_clusters_)
+        # y_pred = sc_model.fit_predict(z_run)
 
+        # Kmean
+        # kmeans_model = KMeans(n_clusters=n_clusters_, random_state=1)
+        # y_pred = kmeans_model.fit_predict(z_run) #Labels of each point
+
+        # # Mean Shift
+        # meanshift_model = MeanShift(bandwidth=n_clusters_)
+        # y_pred = meanshift_model.fit_predict(z_run)
+
+        # GMM
+        # GMM_model = mixture.GaussianMixture(n_components=5, covariance_type="full")
+        # y_pred = GMM_model.fit_predict(z_run)
+
+        # DBSCAN
+        # DBSCAN_model = DBSCAN(eps = 0.1)
+        # y_pred = DBSCAN_model.fit_predict(z_run)
+
+        # # OPTICS
+        # OPTICS_model = OPTICS(eps=0.8, min_samples=10)
+        # y_pred = OPTICS_model.fit_predict(z_run)
+
+
+
+
+
+
+
+
+
+        # cls = svm_latent_space(z_run, labels)
+        # cls.predict()
         # clustering latent variable
         latent_dataset = {"z_run_pca": z_run_pca, "z_run_tsne": z_run_tsne}
         for name, z_run_sep in latent_dataset.items():
@@ -86,13 +127,12 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
             # kmeans_model = KMeans(n_clusters=n_clusters_, random_state=1)
             # y_pred = kmeans_model.fit_predict(z_run_sep) #Labels of each point
 
-            # SpectralClustering
-            sc_model = SpectralClustering(n_clusters=n_clusters_)
-            y_pred = sc_model.fit_predict(z_run_sep)
+
             # name
             # # Mean Shift
             #meanshift_model = MeanShift(bandwidth=n_clusters_)
             #y_pred = meanshift_model.fit_predict(z_run_sep)
+            # SVM
 
             metrics.silhouette_score(z_run_sep, labels, metric='euclidean')
             labels_for_metrics = np.squeeze(labels)
@@ -103,7 +143,7 @@ def plot_clustering(z_run, labels, engine='plotly', download=False, folder_name=
                     "Kmeans", name, str(accuracy)))
 
             plt.scatter(z_run_sep[:, 0], z_run_sep[:, 1], c=y_pred)
-            title = "predict_clustering on " + " Acc: " + str(accuracy) +".png"
+            title = "predict_clustering_{} on {} ".format(clustering_name, name) + " Acc: " + str(accuracy) +".png"
             plt.title(title)
             if download:
                 if os.path.exists(folder_name):
@@ -172,6 +212,40 @@ def open_data(direc, ratio_train=0.8, dataset="ECG5000"):
     ind = np.random.permutation(N)
     return data[ind[:ind_cut], 1:, :], data[ind[ind_cut:], 1:, :], data[ind[:ind_cut], 0, :], data[ind[ind_cut:], 0, :]
 
+
+def open_newdata(direc, ratio_train=0.8, dataset="ECG200"):
+    """Input:
+    direc: location of the UCR archive
+    ratio_train: ratio to split training and testset
+    dataset: name of the dataset in the UCR archive"""
+    datadir = direc + '/' + dataset + '/' + dataset
+    data_train = np.loadtxt(datadir + '_TRAIN.csv', delimiter=',')
+    data_test_val = np.loadtxt(datadir + '_TEST.csv', delimiter=',')[:-1]
+    data = np.concatenate((data_train, data_test_val), axis=0)
+    data = np.expand_dims(data, -1)
+
+    N, D, _ = data.shape
+
+    ind_cut = int(ratio_train * N)
+    ind = np.random.permutation(N)
+    return data[ind[:ind_cut], :-1, :], data[ind[ind_cut:], :-1, :], data[ind[:ind_cut], -1, :], data[ind[ind_cut:], -1, :]
+
+def open_newdata_ED(direc, ratio_train=0.8, dataset="ElectricDevices"):
+    """Input:
+    direc: location of the UCR archive
+    ratio_train: ratio to split training and testset
+    dataset: name of the dataset in the UCR archive"""
+    datadir = direc + '/' + dataset + '/' + dataset
+    data_train = np.loadtxt(datadir + '_TRAIN.csv', delimiter=',')
+    data_test_val = np.loadtxt(datadir + '_TEST.csv', delimiter=',')[:-1]
+    data = np.concatenate((data_train, data_test_val), axis=0)
+    data = np.expand_dims(data, -1)
+
+    N, D, _ = data.shape
+
+    ind_cut = int(ratio_train * N)
+    ind = np.random.permutation(N)
+    return data[ind[:ind_cut], :-1, :], data[ind[ind_cut:], :-1, :], data[ind[:ind_cut], -1, :], data[ind[ind_cut:], -1, :]
 
 def cvs_to_numpy(direc, ratio_train=0.8, dataset="ECG5000"):
     datadir = direc + '/' + dataset + '/' + dataset
